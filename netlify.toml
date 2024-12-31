@@ -1,0 +1,3 @@
+[build]
+  functions = "functions"  # Path to serverless functions
+  publish = "frontend/out" # Path to your frontend build

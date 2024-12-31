@@ -10,6 +10,11 @@ export default {
       center: true,
       padding: "15px",
     },
+
+    navContainer: {
+      innerWidth: '1728px',
+      center: true,
+    },
     extend: {
       animation: {
         'fade-out': 'fadeOut 0.5s ease-in-out',

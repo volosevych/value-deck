@@ -1,78 +1,103 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation"; // Import useRouter for navigation
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
-
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
+  const router = useRouter(); // Initialize router
 
   const isActive = (route) => pathname === route;
 
+  const handleSearch = () => {
+    if (!searchQuery.trim()) return; // Prevent empty searches
+    router.push(`/results?query=${encodeURIComponent(searchQuery)}`); // Redirect with query parameter
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  useEffect(() => {
+    const onScroll = () => {
+      setIsScrolled(window.scrollY > 50); // Detect if the user has scrolled 50px or more
+    };
+
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <nav className="bg-gray px-4 py-3">
-      <div className="container flex justify-between items-center">
-        {/* Logo */}
-        <div>
-          <img src="/nav/logo.svg" className="w-[130px] h-[130px]" alt="Logo" />
+    <nav
+      className={`px-4 sticky top-0 z-[100] ${
+        isScrolled ? "bg-black shadow-md" : "bg-gray"
+      } transition-all duration-300 ease-in-out`}
+    >
+      <div className="flex items-center justify-between">
+        {/* Logo and Nav Links */}
+        <div className="flex items-center">
+          {/* Logo */}
+          <Link href="/">
+            <img
+              src="/nav/logo.png"
+              className="w-[170px] h-auto"
+              alt="Logo"
+            />
+          </Link>
+
+          {/* Navigation Links */}
+          <ul className="hidden md:flex space-x-6 text-white text-lg ml-6">
+            <li>
+              <Link
+                href="/"
+                className={`${
+                  isActive("/") ? "text-green font-bold" : "text-white"
+                }`}
+              >
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/explore"
+                className={`${
+                  isActive("/explore") ? "text-green font-bold" : "text-white"
+                }`}
+              >
+                Explore
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/about"
+                className={`${
+                  isActive("/about") ? "text-green font-bold" : "text-white"
+                }`}
+              >
+                About
+              </Link>
+            </li>
+          </ul>
         </div>
 
-        {/* Hamburger Button */}
-        <button
-          className="md:hidden text-white focus:outline-none z-50"
-          onClick={toggleMenu}
-          aria-expanded={isOpen ? "true" : "false"}
-          aria-label="Toggle navigation menu"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-            ></path>
-          </svg>
-        </button>
-
-        {/* Navigation Links */}
-        <ul
-          className={`md:flex text-white md:space-x-6 md:items-center absolute md:static left-0 w-full md:w-auto bg-black md:bg-transparent ${
-            isOpen ? "top-0 opacity-100" : "top-[-200px] opacity-0 md:opacity-100 md:top-0"
-          } transition-all duration-300 ease-in-out z-40`}
-        >
-          <li className="nav-item">
-            <Link href="/" className={`nav-link ${isActive("/") ? "text-blue-500" : "text-white"}`}>
-              Home
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link
-              href="/explore"
-              className={`nav-link ${isActive("/explore") ? "text-blue-500" : "text-white"}`}
-            >
-              Explore
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link
-              href="/about"
-              className={`nav-link ${isActive("/about") ? "text-blue-500" : "text-white"}`}
-            >
-              About
-            </Link>
-          </li>
-        </ul>
+        {/* Search Bar */}
+        <div className="flex items-center flex-grow ml-28">
+          <MagnifyingGlassIcon className="h-6 w-6 text-gray-500 mr-4" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Find your favorite card..."
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600 text-black"
+            onKeyDown={handleKeyDown} // Listen for the Enter key
+          />
+        </div>
       </div>
     </nav>
   );

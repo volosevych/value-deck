@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 
 export default function FeaturedCards() {
   const [cards, setCards] = useState([]);
@@ -9,8 +10,14 @@ export default function FeaturedCards() {
 
   useEffect(() => {
     const fetchFeaturedCards = async () => {
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/featured-cards`;
+      console.log("Fetching featured cards from:", apiUrl);
+
       try {
-        const response = await fetch("http://localhost:5000/api/featured-cards");
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         if (Array.isArray(data)) {
           setCards(data.slice(0, 3)); // Limit to 3 featured cards
@@ -63,15 +70,19 @@ export default function FeaturedCards() {
             key={card.id}
             className="border rounded-lg p-4 shadow-md hover:shadow-lg transition"
           >
-            <img
-              src={card.imageUrl}
-              alt={card.name}
-              className="w-full h-auto object-cover mb-4"
-              loading="lazy" // Add lazy loading for better performance
-            />
+            <div className="relative w-full h-60 mb-4">
+              <Image
+                src={card.imageUrl || "https://via.placeholder.com/300"}
+                alt={card.name || "No Image Available"}
+                layout="fill"
+                objectFit="cover"
+                className="rounded"
+                loading="lazy"
+              />
+            </div>
             <h3 className="text-2xl">{card.name}</h3>
-            <p className="text-blue-500 text-lg">Price: {card.prices}</p>
-            <p className="text-gray-500 text-lg">{card.rarity}</p>
+            <p className="text-blue-500 text-lg">Price: {card.prices || "N/A"}</p>
+            <p className="text-gray-500 text-lg">Rarity: {card.rarity || "Unknown"}</p>
           </div>
         ))}
       </div>

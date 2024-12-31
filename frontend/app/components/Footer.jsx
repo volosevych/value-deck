@@ -24,7 +24,7 @@ const Footer = () => {
 
             {/* Branding */}
             <div className="text-center flex flex-col">
-                <img src="/nav/logo.svg" alt="Card Lookup Logo" className="h-24 float-end" />
+                <img src="/nav/logo.png" alt="Card Lookup Logo" className="w-[100px] h-auto" />
                 <p className="mt-2 text-1xl">
                     Discover trading card values and trends with ease.
                 </p>
