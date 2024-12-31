@@ -1,0 +1,8 @@
+[build]
+  base = "frontend"          # Point Netlify to the frontend folder
+  command = "npm run build"  # Run the Next.js build command
+  publish = ".next"          # Publish from the Next.js build output
+  functions = "../functions" # Point to serverless functions in the root
+
+[functions]
+  node_bundler = "esbuild"
