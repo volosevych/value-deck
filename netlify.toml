@@ -1,3 +1,7 @@
 [build]
-  functions = "functions"  # Path to serverless functions
-  publish = "frontend/out" # Path to your frontend build
+  command = "npm run build"  # Build command for Next.js
+  functions = "functions"    # Path to serverless functions
+  publish = "frontend/.next" # Path to the Next.js build output
+
+[functions]
+  node_bundler = "esbuild"  # Ensure functions use a compatible bundler
