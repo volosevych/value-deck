@@ -1,13 +1,13 @@
 [build]
-  base = "frontend"          
-  command = "npm run build"  
-  publish = "out"          
-  functions = "../functions" 
+  base = "frontend"
+  command = "npm run build"
+  publish = "frontend/.next"
 
 [functions]
-  node_bundler = "esbuild"   
+  directory = "functions"
+  node_bundler = "esbuild"       
 
-[[redirects]]
-  from = "/*"                
-  to = "/index.html"         
-  status = 200               
+[plugins]
+  package = "@netlify/plugin-nextjs"
+         
+              
