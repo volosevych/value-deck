@@ -97,6 +97,19 @@ const Navbar = () => {
             className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600 text-black"
             onKeyDown={handleKeyDown} // Listen for the Enter key
           />
+
+
+          <div className="flex items-center space-x-4 ml-8 ">
+            <button className="whitespace-nowrap bg-green p-2 rounded-md text-lg hover:text-black hover:bg-white transition-colors transition-500">
+              Sign In
+            </button>
+
+            <button className="whitespace-nowrap bg-green p-2 rounded-md text-lg hover:text-black hover:bg-white transition-colors transition-500">
+              Log In
+            </button>
+          </div>
+
+          
         </div>
       </div>
     </nav>
