@@ -1,8 +1,9 @@
-const eslintConfig = [
-  {
-    files: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"],
-    extends: ["next/core-web-vitals"],
-  },
-];
+import { FlatCompat } from "@eslint/eslintrc";
 
-export default eslintConfig;
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
+
+export default [
+  ...compat.extends("next/core-web-vitals"),
+];
