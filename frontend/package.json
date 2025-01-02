@@ -1,6 +1,7 @@
 {
   "name": "frontend",
   "version": "0.1.0",
+  "homepage": "/value-deck",
   "private": true,
   "scripts": {
     "dev": "next dev",

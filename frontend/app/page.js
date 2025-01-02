@@ -22,6 +22,7 @@ export default function Page() {
           fill
           style={{ objectFit: "cover" }}
           className="blur-sm"
+          priority
         />
 
         {/* Hero Content */}
@@ -61,6 +62,7 @@ export default function Page() {
         </div>
       </section>
 
+      {/* Featured Cards Section */}
       <FeaturedCards />
     </main>
   );
