@@ -10,9 +10,7 @@ const FeaturedCards = () => {
 
   useEffect(() => {
     const fetchFeaturedCards = async () => {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL
-        ? `${process.env.NEXT_PUBLIC_API_URL}/featured-cards`
-        : "/api/featured-cards"; // Use relative path as a fallback for internal APIs
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
       console.log("Fetching featured cards from:", apiUrl);
 
