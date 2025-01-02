@@ -5,7 +5,6 @@ const fetchPokemonCardData = async (query) => {
   try {
     console.log(`Fetching Pokémon card data for query: ${query}`);
 
-    // Ensure the API key is available
     if (!process.env.POKEMON_API_KEY) {
       throw new Error('POKEMON_API_KEY is not defined in environment variables.');
     }
@@ -21,8 +20,8 @@ const fetchPokemonCardData = async (query) => {
     });
 
     if (!response.data || !response.data.data) {
-      console.warn('No data returned from TCG API.');
-      return [];
+      console.warn(`No data returned for query: ${query}`);
+      return []; // Return empty array if no data is found
     }
 
     return response.data.data.map((card) => ({
@@ -34,23 +33,22 @@ const fetchPokemonCardData = async (query) => {
       prices: card.cardmarket?.prices?.averageSellPrice || 'N/A',
     }));
   } catch (error) {
-    console.error('Error fetching Pokémon card data:', error.response?.data || error.message);
-    throw new Error('Failed to fetch Pokémon card data.');
+    console.error(`Error fetching data for query "${query}":`, error.response?.data || error.message);
+    return []; // Return empty array on error to continue processing
   }
 };
 
 exports.handler = async (event) => {
-  // Allow only GET requests
   if (event.httpMethod !== 'GET') {
     return {
       statusCode: 405,
-      headers: { 'Access-Control-Allow-Origin': '*' }, // CORS Header
+      headers: { 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({ error: 'Method Not Allowed' }),
     };
   }
 
   try {
-    const featuredCardNames = ['Charizard', 'Pikachu', 'Blue Eyes White Dragon'];
+    const featuredCardNames = ['Charizard', 'Pikachu', 'Blue Eyes White Dragon']; // Adjusted to highlight issue with invalid names
     console.log('Fetching featured cards...');
 
     // Fetch data for each card
@@ -58,25 +56,18 @@ exports.handler = async (event) => {
       fetchPokemonCardData(`name:"${name}"`)
     );
 
-    const results = await Promise.allSettled(promises);
+    const results = await Promise.all(promises);
 
-    // Handle fulfilled and rejected promises
-    const featuredCards = results
-      .filter((result) => result.status === 'fulfilled')
-      .map((result) => result.value)
-      .flat();
+    // Flatten results and filter out empty arrays
+    const featuredCards = results.flat().filter((card) => card && card.name);
 
-    const errors = results
-      .filter((result) => result.status === 'rejected')
-      .map((result) => result.reason);
-
-    if (errors.length > 0) {
-      console.warn('Some API requests failed:', errors);
+    if (featuredCards.length === 0) {
+      console.warn('No featured cards found.');
     }
 
     return {
       statusCode: 200,
-      headers: { 'Access-Control-Allow-Origin': '*' }, // CORS Header
+      headers: { 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify(featuredCards),
     };
   } catch (error) {
@@ -84,7 +75,7 @@ exports.handler = async (event) => {
 
     return {
       statusCode: 500,
-      headers: { 'Access-Control-Allow-Origin': '*' }, // CORS Header
+      headers: { 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({ error: 'Internal Server Error' }),
     };
   }

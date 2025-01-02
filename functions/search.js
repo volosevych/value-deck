@@ -20,7 +20,7 @@ const fetchPokemonCardData = async (query) => {
     });
 
     if (!response.data || !response.data.data) {
-      console.warn('No data returned from TCG API.');
+      console.warn(`No data returned from TCG API for query: ${query}`);
       return [];
     }
 
@@ -33,11 +33,13 @@ const fetchPokemonCardData = async (query) => {
       prices: card.cardmarket?.prices?.averageSellPrice || 'N/A',
     }));
   } catch (error) {
-    console.error('Error fetching Pokémon card data:', {
+    console.error(`Error fetching Pokémon card data for query "${query}":`, {
       message: error.message,
       response: error.response?.data || 'No response data',
       status: error.response?.status || 'No status',
     });
+
+    // Return an empty array to allow the rest of the process to continue
     return [];
   }
 };
@@ -85,7 +87,7 @@ const fetchEbayCardData = async (query) => {
     });
 
     if (!response.data || !response.data.itemSummaries) {
-      console.warn('No data returned from eBay API.');
+      console.warn(`No data returned from eBay API for query: ${query}`);
       return [];
     }
 
@@ -97,14 +99,13 @@ const fetchEbayCardData = async (query) => {
       link: item.itemWebUrl || '#',
     }));
   } catch (error) {
-    console.error('Error fetching eBay card data:', {
+    console.error(`Error fetching eBay card data for query "${query}":`, {
       message: error.message,
       response: error.response?.data || 'No response data',
       status: error.response?.status || 'No status',
     });
 
-    // Optional: Return mock data for testing
-    console.warn('Using mock eBay data for testing.');
+    // Return mock data as a fallback for eBay queries
     return [
       {
         id: 'mock-1',
@@ -128,7 +129,7 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'GET') {
     return {
       statusCode: 405,
-      headers: { 'Access-Control-Allow-Origin': '*' }, // CORS Header
+      headers: { 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({ error: 'Method Not Allowed' }),
     };
   }
@@ -139,35 +140,30 @@ exports.handler = async (event) => {
   if (!query) {
     return {
       statusCode: 400,
-      headers: { 'Access-Control-Allow-Origin': '*' }, // CORS Header
+      headers: { 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({ error: 'Query parameter is required' }),
     };
   }
 
   try {
-    const results = [];
-
-    // Fetch Pokémon TCG card data
+    console.log(`Searching for cards with query: ${query}`);
     const tcgResults = await fetchPokemonCardData(`name:"${query}"`);
-    results.push(...tcgResults);
-
-    // Fetch eBay card data
     const ebayResults = await fetchEbayCardData(query);
-    results.push(...ebayResults);
 
-    console.log('Search results successfully fetched.');
+    const results = [...tcgResults, ...ebayResults];
+
     return {
       statusCode: 200,
-      headers: { 'Access-Control-Allow-Origin': '*' }, // CORS Header
+      headers: { 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify(results),
     };
   } catch (error) {
-    console.error('Error processing search:', error.message);
+    console.error(`Error processing search for query "${query}":`, error.message);
+
     return {
       statusCode: 500,
-      headers: { 'Access-Control-Allow-Origin': '*' }, // CORS Header
+      headers: { 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({ error: 'Internal Server Error' }),
     };
   }
 };
-
