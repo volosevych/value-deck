@@ -1,10 +1,14 @@
 const axios = require('axios');
-require('dotenv').config({ path: './.env' });
 
 // Helper to fetch Pokémon card data from TCG API
 const fetchPokemonCardData = async (query) => {
   try {
     console.log(`Fetching Pokémon card data for query: ${query}`);
+
+    if (!process.env.POKEMON_API_KEY) {
+      throw new Error('POKEMON_API_KEY is not defined in environment variables.');
+    }
+
     const response = await axios.get('https://api.pokemontcg.io/v2/cards', {
       headers: {
         'X-Api-Key': process.env.POKEMON_API_KEY,
@@ -34,7 +38,7 @@ const fetchPokemonCardData = async (query) => {
       response: error.response?.data || 'No response data',
       status: error.response?.status || 'No status',
     });
-    return []; // Return an empty array on error
+    return [];
   }
 };
 
@@ -44,6 +48,10 @@ const fetchEbayCardData = async (query) => {
 
   try {
     console.log(`Fetching eBay data for query: ${query}`);
+
+    if (!process.env.EBAY_SANDBOX_APP_ID || !process.env.EBAY_SANDBOX_CERT_ID) {
+      throw new Error('eBay API credentials are not defined in environment variables.');
+    }
 
     // Generate OAuth token for eBay API
     const tokenResponse = await axios.post(
@@ -117,30 +125,21 @@ const fetchEbayCardData = async (query) => {
 };
 
 exports.handler = async (event) => {
-  if (event.httpMethod !== 'POST') {
+  if (event.httpMethod !== 'GET') {
     return {
       statusCode: 405,
+      headers: { 'Access-Control-Allow-Origin': '*' }, // CORS Header
       body: JSON.stringify({ error: 'Method Not Allowed' }),
     };
   }
 
-  let body;
-  try {
-    body = JSON.parse(event.body || '{}');
-    console.log('Parsed Body:', body);
-  } catch (error) {
-    console.error('Error parsing request body:', error.message);
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: 'Invalid JSON input' }),
-    };
-  }
-
-  const { query } = body;
+  // Extract the query parameter
+  const query = event.queryStringParameters?.query;
 
   if (!query) {
     return {
       statusCode: 400,
+      headers: { 'Access-Control-Allow-Origin': '*' }, // CORS Header
       body: JSON.stringify({ error: 'Query parameter is required' }),
     };
   }
@@ -159,13 +158,16 @@ exports.handler = async (event) => {
     console.log('Search results successfully fetched.');
     return {
       statusCode: 200,
+      headers: { 'Access-Control-Allow-Origin': '*' }, // CORS Header
       body: JSON.stringify(results),
     };
   } catch (error) {
     console.error('Error processing search:', error.message);
     return {
       statusCode: 500,
+      headers: { 'Access-Control-Allow-Origin': '*' }, // CORS Header
       body: JSON.stringify({ error: 'Internal Server Error' }),
     };
   }
 };
+
